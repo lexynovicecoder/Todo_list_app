@@ -5,7 +5,7 @@ from sqlmodel import Field, SQLModel, Session, create_engine, select
 
 # Model: Pydantic Model + SQL Model
 
-class BookModel(SQLModel):
+class BookBase(SQLModel):
     title: str = Field(index=True)  # setting index to true creates an index on the title column
     # making it easier to query for book titles
     author: str
@@ -13,3 +13,7 @@ class BookModel(SQLModel):
     # and max_length that ensures isbn conforms to a specific format default_factory ensures new instances of
     # BookModel have a predefined value if none is explicitly set
     description: Optional[str]  # making this attribute optional. No error is raised when not set
+
+
+class Book(BookBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
