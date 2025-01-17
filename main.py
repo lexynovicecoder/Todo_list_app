@@ -34,13 +34,12 @@ def example():
     return {"Title": "Todo list"}
 
 
-# @app.get("/books", response_model=List[Book])
-# def read_books():
-#     with Session(engine) as session:
-#         books = session.exec(select(Book)).all()
-#         return books
-#
-#
+@app.get("/TodoList", response_model=List[TaskRead])
+def read_tasks(session: Session = Depends(get_session)):
+    tasks = session.exec(select(Task)).all()  # Query the database for all Task records
+    return [TaskRead.from_orm(task) for task in tasks]  # Convert Task models to TaskRead models
+
+
 @app.post("/Tasks", response_model=TaskRead)
 def create_task(task: TaskCreate, session: Session = Depends(get_session)):
     db_item = Task.model_validate(task)
@@ -50,13 +49,12 @@ def create_task(task: TaskCreate, session: Session = Depends(get_session)):
     return db_item
 
 
-# @app.get("/books/{book_id}",response_model=Book)
-# def read_book(book_id: int):
-#     with Session(engine) as session:
-#         book_item = session.get(Book,book_id)
-#         if not book_item:
-#             raise HTTPException(status_code=404, detail="Book Not Found!")
-#         return book_item
+@app.get("/task/{task_id}", response_model=TaskRead)
+def read_task(task_id: int, session: Session = Depends(get_session)):
+    task = session.get(Task, task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task Not Found!")
+    return task
 #
 # @app.patch("/books/{book_id}", response_model=Book)
 # def update_book(book_id: int, book: Book):
@@ -72,16 +70,16 @@ def create_task(task: TaskCreate, session: Session = Depends(get_session)):
 #         session.refresh(book_item)
 #         return book_item
 #
-# @app.delete("/books/{book_id}")
-# def delete_book(book_id: int):
-#     with Session(engine) as session:
-#         book_item = session.get(Book, book_id)
-#         if not book_item:
-#             raise HTTPException(status_code=404, detail="Book Not Found!")
-#         session.delete(book_item)
-#         session.commit()
-#         return {"ok": True}
-#
+
+@app.delete("/task/{task_id}")
+def delete_task(task_id: int, session: Session = Depends(get_session)):
+    task = session.get(Task, task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task hasn't been created")
+    session.delete(task)
+    session.commit()
+    return {"ok": True}
+# #
 #
 #
 #
