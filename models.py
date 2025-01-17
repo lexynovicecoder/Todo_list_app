@@ -1,23 +1,33 @@
 from pydantic import BaseModel, Field
 from typing import Optional
 from sqlmodel import Field, SQLModel, Session, create_engine, select
-
+from datetime import datetime
 
 # Model: Pydantic Model + SQL Model
 
-class BookBase(SQLModel):
-    title: str = Field(index=True)  # setting index to true creates an index on the title column
-    # making it easier to query for book titles
-    author: str
-    isbn: str = Field(min_length=4, max_length=5, default_factory=lambda: "0011")  # within the field are min_length
-    # and max_length that ensures isbn conforms to a specific format default_factory ensures new instances of
-    # BookModel have a predefined value if none is explicitly set
-    description: Optional[str]  # making this attribute optional. No error is raised when not set
+
+class TodoList(SQLModel):
+    name: str = Field(index=True)
+    is_completed: bool = Field(default=False)  # Default value for is_completed
+    deadline: Optional[datetime] = Field(default=None)
+    description: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.now)  # Default factory for current timestamp
+    updated_at: Optional[datetime] = Field(default=None)
 
 
-class Book(BookBase, table=True):
+class Task(TodoList, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
 
 
-class BookRead(BookBase):
+class TaskCreate(SQLModel):
+    name: str
+    is_completed: Optional[bool] = Field(default=False)
+    deadline: Optional[datetime] = None
+    description: Optional[str] = None
+
+
+class TaskRead(TodoList):
     id: int
+    updated_at: Optional[datetime] = None  # Explicitly set updated_at default to None
+
+
