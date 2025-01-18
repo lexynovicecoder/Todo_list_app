@@ -8,8 +8,10 @@ from typing import List
 from contextlib import asynccontextmanager
 
 
+
 connect_args = {"check_same_thread": False}  # enables multi-thread access
 engine = create_engine(DATABASE_URL, echo=True, connect_args=connect_args)
+
 
 
 def get_session():
