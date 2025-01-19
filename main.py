@@ -36,13 +36,13 @@ def example():
     return {"Title": "Todo list"}
 
 
-@app.get("/TodoList", response_model=List[TaskRead])
+@app.get("/tasks", response_model=List[TaskRead])
 def read_tasks(session: Session = Depends(get_session)):
     tasks = session.exec(select(Task)).all()  # Query the database for all Task records
     return [TaskRead.from_orm(task) for task in tasks]  # Convert Task models to TaskRead models
 
 
-@app.post("/Tasks", response_model=TaskRead)
+@app.post("/tasks", response_model=TaskRead)
 def create_task(task: TaskCreate, session: Session = Depends(get_session)):
     db_item = Task.model_validate(task)
     session.add(db_item)
@@ -51,7 +51,7 @@ def create_task(task: TaskCreate, session: Session = Depends(get_session)):
     return db_item
 
 
-@app.get("/task/{task_id}", response_model=TaskRead)
+@app.get("/tasks/{task_id}", response_model=TaskRead)
 def read_task(task_id: int, session: Session = Depends(get_session)):
     task = session.get(Task, task_id)
     if not task:
@@ -73,7 +73,7 @@ def read_task(task_id: int, session: Session = Depends(get_session)):
 #         return book_item
 #
 
-@app.delete("/task/{task_id}")
+@app.delete("/tasks/{task_id}")
 def delete_task(task_id: int, session: Session = Depends(get_session)):
     task = session.get(Task, task_id)
     if not task:

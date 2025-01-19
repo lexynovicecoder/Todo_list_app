@@ -1,9 +1,7 @@
-from pydantic import BaseModel, Field
 from typing import Optional
 from sqlmodel import Field, SQLModel, Session, create_engine, select
 from datetime import datetime
 
-# Model: Pydantic Model + SQL Model
 
 
 class TodoList(SQLModel):
