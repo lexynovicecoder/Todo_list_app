@@ -1,11 +1,10 @@
 from typing import Optional
-from sqlmodel import Field, SQLModel, Session, create_engine, select
+from sqlmodel import Field, SQLModel
 from datetime import datetime,timedelta
-from pydantic import BaseModel
 
 
 
-class TodoList(SQLModel, table=True):
+class Todo(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
     name: str = Field(index=True)
     is_completed: bool = Field(default=False)  # Default value for is_completed
@@ -18,9 +17,4 @@ class TodoList(SQLModel, table=True):
 
 
 
-class TaskCreateDTO(BaseModel):
-    name: str 
-    is_completed: bool = Field(default=False)  # Default value for is_completed   
-    deadline: Optional[datetime] = Field(default=datetime.now()+timedelta(days=1))
-    description: Optional[str] = None
 
