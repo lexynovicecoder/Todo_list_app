@@ -24,7 +24,7 @@ def example():
 
 
 
-app.include_router(router)
+app.include_router(router,prefix="/tasks")
 
 
 
