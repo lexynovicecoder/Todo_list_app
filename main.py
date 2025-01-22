@@ -1,20 +1,21 @@
 from fastapi import FastAPI
 import argparse
 import uvicorn
-from task_router import engine
+from routers.task_routers import engine
 from database.database import *
 from sqlmodel import SQLModel
 from contextlib import asynccontextmanager
-from task_router import router
+from routers.task_routers import router1
+from routers.todoList_routers import router2
 
 def create_db_and_table():
     SQLModel.metadata.create_all(engine)  # creates table for model
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     create_db_and_table()
     yield
+
 
 app = FastAPI(lifespan=lifespan)
 
@@ -23,8 +24,8 @@ def example():
     return {"Title": "Todo list"}
 
 
-
-app.include_router(router,prefix="/tasks")
+app.include_router(router2,prefix="/todolist")
+app.include_router(router1,prefix="/tasks")
 
 
 

@@ -10,7 +10,7 @@ from typing import List
 
 
 
-router = APIRouter(tags=["Todos"])
+router1 = APIRouter(tags=["Todos"])
 
 
 connect_args = {"check_same_thread": False}  # enables multi-thread access
@@ -28,13 +28,13 @@ def get_session():
 
 
 
-@router.get("", response_model=List[Todo])
+@router1.get("", response_model=List[Todo])
 def read_tasks(session: Session = Depends(get_session)):
     tasks = session.exec(select(Todo)).all()  # Query the database for all Task records
     return tasks
 
 
-@router.post("",response_model=Todo, status_code = 201 )
+@router1.post("",response_model=Todo, status_code = 201 )
 def create_task(task: TaskCreateDTO,response: Response, session: Session = Depends(get_session)):
     db_item = Todo(**task.model_dump())  # created_at and updated_at will be set automatically by the event
     session.add(db_item)
@@ -44,14 +44,14 @@ def create_task(task: TaskCreateDTO,response: Response, session: Session = Depen
     return db_item
 
 
-@router.get("/{task_id}", response_model=Todo)
+@router1.get("/{task_id}", response_model=Todo)
 def read_task(task_id: int, session: Session = Depends(get_session)):
     task = session.get(Todo, task_id)
     if not task:
         raise HTTPException(status_code=404, detail="Task Not Found!")
     return task
 
-@router.put("/{task_id}", response_model=Todo)
+@router1.put("/{task_id}", response_model=Todo)
 def update_task(task_id: int, task: TaskCreateDTO, session: Session = Depends(get_session)):
     task_item = session.get(Todo, task_id)
     if not task_item:
@@ -64,7 +64,7 @@ def update_task(task_id: int, task: TaskCreateDTO, session: Session = Depends(ge
     session.refresh(task_item)
     return task_item
 
-@router.patch("/{task_id}/complete", response_model=Todo)
+@router1.patch("/{task_id}/complete", response_model=Todo)
 def complete_task(task_id: int, session: Session = Depends(get_session)):
     task_item = session.get(Todo, task_id)
     if not task_item:
@@ -78,7 +78,7 @@ def complete_task(task_id: int, session: Session = Depends(get_session)):
     session.refresh(task_item)
     return task_item
 
-@router.patch("/{task_id}/undo", response_model=Todo)
+@router1.patch("/{task_id}/undo", response_model=Todo)
 def undo_task(task_id: int, session: Session = Depends(get_session)):
     task_item = session.get(Todo, task_id)
     if not task_item:
@@ -93,7 +93,7 @@ def undo_task(task_id: int, session: Session = Depends(get_session)):
     return task_item
 
 
-@router.delete("/{task_id}", status_code = 204)
+@router1.delete("/{task_id}", status_code = 204)
 def delete_task(task_id: int, response: Response,session: Session = Depends(get_session)):
     task = session.get(Todo, task_id)
     if not task:
