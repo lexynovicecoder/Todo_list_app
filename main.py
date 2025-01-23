@@ -11,6 +11,7 @@ from routers.todoList_routers import router2
 def create_db_and_table():
     SQLModel.metadata.create_all(engine)  # creates table for model
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     create_db_and_table()
