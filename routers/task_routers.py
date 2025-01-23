@@ -81,11 +81,17 @@ def get_session():
 @router1.post("",response_model=Todo, status_code = 201 )
 def create_task(task: TaskCreateDTO,response: Response, session: Session = Depends(get_session)):
     db_item = Todo(**task.model_dump())  # created_at and updated_at will be set automatically by the event
-    session.add(db_item)
-    session.commit()
-    session.refresh(db_item)
-    response.status_code = status.HTTP_201_CREATED
-    return db_item
+    todolist = session.get(TodoList, db_item.todolist_id)
+    if todolist:   
+        session.add(db_item)
+        session.commit()
+        session.refresh(db_item)
+        response.status_code = status.HTTP_201_CREATED
+        return db_item
+    else:
+        raise HTTPException(status_code=404,detail="Todolist Not Created Yet")
+
+
 
 @router1.get("", response_model=List[Todo])
 def read_tasks(session: Session = Depends(get_session)):
@@ -104,8 +110,12 @@ def read_task(task_id: int, session: Session = Depends(get_session)):
 @router1.put("/{task_id}", response_model=Todo)
 def update_task(task_id: int, task: TaskCreateDTO, session: Session = Depends(get_session)):
     task_item = session.get(Todo, task_id)
+    todolist = session.get(TodoList, task_item.todolist_id)
     if not task_item:
         raise HTTPException(status_code=404, detail="Task Not Found!")
+    if not todolist:
+        raise HTTPException(status_code=404, detail="TodoList Not Found!")
+
     if task_item.is_completed is True:
         raise HTTPException(status_code=404,detail="Task is Completed")
     task_data = task.model_dump(exclude_unset=False)
