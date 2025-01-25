@@ -37,7 +37,7 @@ def read_todoLists(session: Session = Depends(get_session)):
     return todolists
 
 
-@router2.get("/{task_id}", response_model=TodoList)
+@router2.get("/{todolist_id}", response_model=TodoList)
 def read_todolist(todolist_id: int, session: Session = Depends(get_session)):
     todolist = session.get(TodoList, todolist_id)
     if not todolist:

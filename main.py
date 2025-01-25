@@ -26,7 +26,7 @@ def example():
 
 
 app.include_router(router2,prefix="/todo-lists")
-app.include_router(router1,prefix="/todo-lists/{todolist_id}/tasks")
+app.include_router(router1,prefix="/tasks")
 
 
 
