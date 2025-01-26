@@ -1,7 +1,8 @@
 from pydantic import BaseModel
 from datetime import datetime,timedelta
-from typing import Optional
+from typing import Optional,List
 from sqlmodel import Field
+from Models.models import Todo
 
 
 
@@ -14,5 +15,15 @@ class TaskCreateDTO(BaseModel):
 class TodoListCreateDTO(BaseModel):
     name: str = Field(index=True)
     is_completed: bool = Field(default=False)  # Default value for is_completed
+
+class TodoListResponseDTO(BaseModel):
+    id: int = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    created_at: datetime = Field(default_factory=datetime.now)  # Default factory for current timestamp
+    updated_at: Optional[datetime] = Field(default_factory=None)
+    completed_tasks: Optional[int] = Field(default=0)  # Default value
+    task_number: Optional[int] = Field(default=0)  # Default value
+    tasks: List[Todo] = []
+
 
 

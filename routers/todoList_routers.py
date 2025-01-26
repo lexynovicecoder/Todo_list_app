@@ -1,8 +1,9 @@
 from fastapi import  Response, status, Depends, HTTPException
 from fastapi import APIRouter
 from Models.models import *
-from DTOs.dtos import TodoListCreateDTO
+from DTOs.dtos import TodoListCreateDTO,TodoListResponseDTO
 from sqlmodel import Session,select
+from sqlalchemy.orm import selectinload
 from datetime import datetime
 from database.database import *
 from typing import List
@@ -21,7 +22,6 @@ def update_updated_at(mapper, connection, target):
     target.updated_at = datetime.now()
 
 
-
 @router2.post("",response_model=TodoList, status_code = 201 )
 def create_todolist(task: TodoListCreateDTO,response: Response, session: Session = Depends(get_session)):
     db_item = TodoList(**task.model_dump())  # created_at and updated_at will be set automatically by the event
@@ -37,12 +37,14 @@ def read_todoLists(session: Session = Depends(get_session)):
     return todolists
 
 
-@router2.get("/{todolist_id}", response_model=TodoList)
+@router2.get("/{todolist_id}", response_model=TodoListResponseDTO)
 def read_todolist(todolist_id: int, session: Session = Depends(get_session)):
     todolist = session.get(TodoList, todolist_id)
     if not todolist:
-        raise HTTPException(status_code=404, detail="Task Not Found!")
+        raise HTTPException(status_code=404, detail="TodoList not found")
+
     return todolist
+
 
 @router2.put("/{todolist_id}", response_model=TodoList)
 def update_todolist(todolist_id: int, task: TodoListCreateDTO, session: Session = Depends(get_session)):

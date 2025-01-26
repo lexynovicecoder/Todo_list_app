@@ -11,7 +11,7 @@ class TodoList(SQLModel, table=True):
     updated_at: Optional[datetime] = Field(default_factory=None)
     completed_tasks: Optional[int] = Field(default=0)  # Default value
     task_number: Optional[int] = Field(default=0)  # Default value
-    todolist: List["Todo"] = Relationship(back_populates="todo",sa_relationship_kwargs={"cascade": "all, delete-orphan"})
+    tasks: List["Todo"] = Relationship(back_populates="todolist",sa_relationship_kwargs={"cascade": "all, delete-orphan"})
 
 class Todo(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
@@ -23,7 +23,7 @@ class Todo(SQLModel, table=True):
     deadline: Optional[datetime] = Field(default=datetime.now()+timedelta(days=1))
     updated_at: Optional[datetime] = Field(default_factory=None)
     todolist_id: int = Field(default=None,foreign_key="todolist.id")
-    todo: Optional[TodoList] = Relationship(back_populates="todolist")
+    todolist: Optional[TodoList] = Relationship(back_populates="tasks")
 
 
 
