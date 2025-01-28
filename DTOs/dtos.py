@@ -14,7 +14,6 @@ class TaskCreateDTO(BaseModel):
 
 class TodoListCreateDTO(BaseModel):
     name: str = Field(index=True)
-    is_completed: bool = Field(default=False)  # Default value for is_completed
 
 class TodoListResponseDTO(BaseModel):
     id: int = Field(default=None, primary_key=True)
