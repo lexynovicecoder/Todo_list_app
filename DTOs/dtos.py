@@ -12,6 +12,11 @@ class TaskCreateDTO(BaseModel):
     description: Optional[str] = None
     todolist_id: int
 
+class TaskUpdateDTO(BaseModel):
+    name: str 
+    deadline: Optional[datetime] = Field(default=datetime.now()+timedelta(days=1))
+    description: Optional[str] = None
+
 class TodoListCreateDTO(BaseModel):
     name: str = Field(index=True)
 

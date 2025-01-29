@@ -1,16 +1,20 @@
-from fastapi import status,HTTPException
+from fastapi import  Response, Depends, HTTPException, status
 from Models.models import *
 from DTOs.dtos import TodoListCreateDTO
 from sqlmodel import Session,select
 from database.database import *
 from typing import List
-from routers.task_routers import engine
+from database.database import engine
+
 
 def get_session():
     with Session(engine) as session:
         yield session  # Yield the session for use in endpoints
 
 
+def todolist_service(response: Response, session: Session = Depends(get_session)):
+    return TodolistServices(session=session, response=response)
+    
 class TodolistServices:
     def __init__(self,session,response):
         self.session = session  # Database session
