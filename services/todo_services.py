@@ -3,7 +3,6 @@ from Models.models import *
 from sqlmodel import Session,select
 from database.database import *
 from typing import List
-from database.database import engine
 
 
 
