@@ -29,5 +29,18 @@ class TodoListResponseDTO(BaseModel):
     task_number: Optional[int] = Field(default=0)  # Default value
     tasks: List[Todo] = []
 
+class CreateUserDTO(BaseModel):
+    username: str
+    first_name: str
+    last_name: str
+    email: str
+    password: str
 
+class UserResponseDTO(BaseModel):
+    id: int = Field(default=None, primary_key=True)
+    username: str = Field(index=True)
+    first_name: str
+    last_name: str
+    email: str
+    disabled: bool=Field(default=False)
 
