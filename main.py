@@ -25,10 +25,9 @@ app = FastAPI(lifespan=lifespan)
 def example():
     return {"Title": "Todo list"}
 
-
+app.include_router(router_user,prefix="/auth")
 app.include_router(router2,prefix="/todo-lists")
 app.include_router(router1,prefix="/tasks")
-app.include_router(router_user,prefix="/auth")
 
 
 

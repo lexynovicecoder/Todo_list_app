@@ -1,6 +1,6 @@
 from jose import jwt, JWTError
 from pydantic import BaseModel
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordBearer
 import os
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
