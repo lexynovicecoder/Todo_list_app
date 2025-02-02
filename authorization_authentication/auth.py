@@ -5,6 +5,8 @@ import os
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from passlib.context import CryptContext
+from typing import Optional
+
 
 
 load_dotenv()
@@ -14,12 +16,15 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto") # helps hash passwords
-oauth_2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_bearer = OAuth2PasswordBearer(tokenUrl="token")
 
 
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+class TokenData(BaseModel):
+    username: Optional[str] = None
 
 
 

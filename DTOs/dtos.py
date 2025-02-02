@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from datetime import datetime,timedelta
 from typing import Optional,List
 from sqlmodel import Field
-from Models.models import Todo
+from Models.models import Todo,User
 
 
 
@@ -36,12 +36,6 @@ class CreateUserDTO(BaseModel):
     email: str
     password: str
 
-class UserLogin(BaseModel):
-    email: str
-    password: str
-
-
-
 class UserResponseDTO(BaseModel):
     id: int = Field(default=None, primary_key=True)
     username: str = Field(index=True)
@@ -50,3 +44,5 @@ class UserResponseDTO(BaseModel):
     email: str
     disabled: bool=Field(default=False)
 
+class UserInDB(User):
+    hashed_password: str
