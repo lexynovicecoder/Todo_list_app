@@ -7,7 +7,7 @@ from sqlmodel import SQLModel
 from contextlib import asynccontextmanager
 from routers.task_routers import router1
 from routers.todoList_routers import router2
-from routers.user_routers import router_user
+from authorization_authentication.auth import router_user
 
 def create_db_and_table():
     SQLModel.metadata.create_all(engine)  # creates table for model
@@ -25,7 +25,7 @@ app = FastAPI(lifespan=lifespan)
 def example():
     return {"Title": "Todo list"}
 
-app.include_router(router_user,prefix="/auth")
+app.include_router(router_user,prefix="/auth",tags=['Auth'])
 app.include_router(router2,prefix="/todo-lists")
 app.include_router(router1,prefix="/tasks")
 

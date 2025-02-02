@@ -29,10 +29,6 @@ class Todo(SQLModel, table=True):
 class User(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
     username: str = Field(index=True)
-    first_name: str
-    last_name: str
-    email: str
-    disabled: Optional[bool]=Field(default=False)
     hashed_password: str
     
 
