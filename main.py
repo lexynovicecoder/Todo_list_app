@@ -7,7 +7,7 @@ from sqlmodel import SQLModel
 from contextlib import asynccontextmanager
 from routers.task_routers import router1
 from routers.todoList_routers import router2
-from authorization_authentication.auth import router_user
+from routers.user_routers import router_user
 
 def create_db_and_table():
     SQLModel.metadata.create_all(engine)  # creates table for model
