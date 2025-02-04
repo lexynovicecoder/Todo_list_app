@@ -1,5 +1,5 @@
 from Models.models import User
-from authorization_authentication.auth import bcrypt_context,SECRET_KEY,ALGORITHM,oauth2_bearer
+from authorization_authentication.auth import bcrypt_context,SECRET_KEY,ALGORITHM,security_scheme
 from typing import Annotated
 from datetime import datetime, timedelta, timezone
 from fastapi import status,Depends,HTTPException
@@ -38,7 +38,7 @@ def create_access_token(username:str, user_id:int, expires_delta: timedelta):
 
 
 
-def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
+def get_current_user(token: Annotated[str, Depends(security_scheme)]):
     try:
         payload =jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get('sub')

@@ -8,7 +8,9 @@ from typing import List
 from routers.task_routers import engine
 from sqlalchemy import event
 from services.todolist_services import TodolistServices  # Assuming the service is in a services folder
-from sqlmodel import Session,select
+from sqlmodel import Session
+from services.user_service import get_current_user
+from authorization_authentication import auth
 
 
 
@@ -40,7 +42,7 @@ def read_todoLists(todolist_service: TodolistServices = Depends(todolist_service
 
 
 @router2.get("/{todolist_id}", response_model=TodoListResponseDTO)
-def read_todolist(todolist_id: int, todolist_service: TodolistServices = Depends(todolist_service)):
+def read_todolist(todolist_id: int, todolist_service: TodolistServices = Depends(todolist_service),payload: dict = Depends(auth.jwt_decode_token)):
     todolist = todolist_service.read_todolist(todolist_id)
     return todolist
 

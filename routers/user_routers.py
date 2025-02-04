@@ -5,7 +5,7 @@ from fastapi import APIRouter,status,Depends,HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from DTOs.dtos import CreateUserDTO
 from services.user_service import *
-from authorization_authentication.auth import Token,oauth2_bearer
+from authorization_authentication.auth import Token,security_scheme
 
 router_user = APIRouter()
 

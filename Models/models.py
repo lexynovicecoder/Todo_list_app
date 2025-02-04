@@ -19,6 +19,7 @@ class TodoList(SQLModel, table=True):
     completed_tasks: Optional[int] = Field(default=0)  # Default value
     task_number: Optional[int] = Field(default=0)  # Default value
     tasks: List["Todo"] = Relationship(back_populates="todolist",sa_relationship_kwargs={"cascade": "all, delete-orphan"})
+    user_id: int = Field(default=None, foreign_key="user.id")
     users: Optional[User] = Relationship(back_populates="todolists")
 
 class Todo(SQLModel, table=True):
