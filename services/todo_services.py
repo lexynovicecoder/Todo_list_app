@@ -25,10 +25,15 @@ class TodoServices:
         self.session = session  # Database session
         self.response = response
     
-    def create_todo(self, task):
+    def create_todo(self, task, user_payload):
+        userid: int =  user_payload.get('id')
         db_item = Todo(**task.model_dump())
-        todolist = db_item.todolist_id
-        if todolist:   
+        todolist = self.session.get(TodoList, db_item.todolist_id)
+        if todolist:
+            if todolist.user_id != userid:
+                raise HTTPException(status_code=404, detail="Task Not Found")
+            db_item.user_id = userid
+    
             self.session.add(db_item)
             self.session.commit()
             self.session.refresh(db_item)
@@ -37,17 +42,24 @@ class TodoServices:
         else:
             raise HTTPException(status_code=404,detail="Todolist Not Created Yet")
         
-    def read_todos(self):
-        return self.session.exec(select(Todo)).all()
+    def read_todos(self,user_payload):
+        userid: int =  user_payload.get('id')
+        statement = select(Todo).where(Todo.user_id == userid)
+
+        return self.session.exec(statement).all()
     
-    def update_todo(self,id,task):
+    def update_todo(self,id,task, user_payload):
+        userid: int =  user_payload.get('id')
         task_item = self.session.get(Todo, id)
-        if not task_item:
+        if task_item:
+            if task_item.user_id != userid:
+                raise HTTPException(status_code=404, detail="Task Not Found!")
+        
+            if task_item.is_completed is True:
+                raise HTTPException(status_code=404,detail="Task is Completed")
+        else:
             raise HTTPException(status_code=404, detail="Task Not Found!")
-        if not task_item.todolist_id:
-            raise HTTPException(status_code=404, detail="TodoList Not Found!")
-        if task_item.is_completed is True:
-            raise HTTPException(status_code=404,detail="Task is Completed")
+
         task_data = task.model_dump(exclude_unset=False)
         for key, value in task_data.items():
             setattr(task_item, key, value)
@@ -56,9 +68,13 @@ class TodoServices:
         self.session.refresh(task_item)
         return task_item
     
-    def complete_todo(self,id):
+    def complete_todo(self,id,user_payload):
         task_item = self.session.get(Todo, id)
+        userid: int =  user_payload.get('id')
+
         if not task_item:
+            raise HTTPException(status_code=404, detail="Task Not Found!")
+        if task_item.user_id != userid:
             raise HTTPException(status_code=404, detail="Task Not Found!")
         if task_item.is_completed:
             raise HTTPException(status_code=401, detail="Already Completed")
@@ -71,10 +87,13 @@ class TodoServices:
         self.session.refresh(task_item)
         return task_item
 
-    def undo_todo(self,id):
+    def undo_todo(self,id,user_payload):
+        userid: int =  user_payload.get('id')
         task_item = self.session.get(Todo, id)
         if not task_item:
             raise HTTPException(status_code=404, detail="Task Not Found!")
+        if task_item.user_id != userid:
+            raise HTTPException(status_code=404, detail="Task Not Found!")       
         if not task_item.is_completed:
             raise HTTPException(status_code=401, detail="Cannot Undo")
         task_item.is_completed = False  
@@ -86,10 +105,14 @@ class TodoServices:
         self.session.refresh(task_item)
         return task_item
     
-    def delete_todo(self,id):
+    def delete_todo(self,id,user_payload):
+        userid: int =  user_payload.get('id')
         task = self.session.get(Todo, id)
-        if not task:
+        if not task :
             raise HTTPException(status_code=404, detail="Task hasn't been created")
+        if task.user_id != userid:
+            raise HTTPException(status_code=404, detail="Task hasn't been created")
+
         self.session.delete(task)
         self.session.commit()
         self.response.status_code = status.HTTP_204_NO_CONTENT

@@ -2,6 +2,7 @@ from typing import Optional,List
 from sqlmodel import Field, SQLModel,Relationship
 from datetime import datetime,timedelta
 
+
 class User(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
     email: str
@@ -10,7 +11,7 @@ class User(SQLModel, table=True):
     username: str = Field(index=True)
     hashed_password: str
     todolists: List["TodoList"] = Relationship(back_populates="users",sa_relationship_kwargs={"cascade": "all, delete-orphan"})
-
+    tasks: List["Todo"] = Relationship(back_populates="users")
 class TodoList(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
     name: str = Field(index=True)
@@ -33,6 +34,9 @@ class Todo(SQLModel, table=True):
     updated_at: Optional[datetime] = Field(default_factory=None)
     todolist_id: int = Field(default=None,foreign_key="todolist.id")
     todolist: Optional[TodoList] = Relationship(back_populates="tasks")
+    user_id : int = Field(default=None, foreign_key="user.id")
+    users: Optional[User] = Relationship(back_populates="tasks")
+    
 
 
 

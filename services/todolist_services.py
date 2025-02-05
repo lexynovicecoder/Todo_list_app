@@ -20,39 +20,55 @@ class TodolistServices:
         self.session = session  # Database session
         self.response = response
     
-    def create_todolist(self, task: TodoListCreateDTO):
+    def create_todolist(self, task: TodoListCreateDTO, user_payload):
+        userid: int =  user_payload.get('id')
         db_item = TodoList(**task.model_dump())
+        user =  self.session.get(User, db_item.user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not Found")
+        if user.id != userid:
+            raise HTTPException(status_code=401, detail="Unauthorized")
         self.session.add(db_item)
         self.session.commit()
         self.session.refresh(db_item)
         self.response.status_code = status.HTTP_201_CREATED
         return db_item
     
-    def read_todolists(self):
-        return self.session.exec(select(TodoList)).all() 
+    def read_todolists(self,user_payload):
+        userid: int =  user_payload.get('id')
+        statement = select(TodoList).where(TodoList.user_id == userid)
+        user = self.session.exec(statement).all()
+        return user 
     
-    def read_todolist(self, id):
+    def read_todolist(self, id, user_payload):
+        userid: int =  user_payload.get('id')
         todolist = self.session.get(TodoList, id)
-        if not todolist:
+        if todolist.user_id != userid:
             raise HTTPException(status_code=404, detail="TodoList not found")
         return todolist
     
-    def update_todolist(self, id,task):
+    def update_todolist(self, id,task,user_payload):
+        userid: int =  user_payload.get('id')
         todolist_item = self.session.get(TodoList, id)
         if not todolist_item:
-            raise HTTPException(status_code=404, detail="Task Not Found!")
-        todolist_data = task.model_dump(exclude_unset=False)
-        for key, value in todolist_data.items():
+            raise HTTPException(status_code=404, detail="Todolist Not Found!")
+        if todolist_item.user_id != userid:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+        todolist_data = task.model_dump(exclude_unset=False)  
+        for key, value in todolist_data.items(): 
             setattr(todolist_item, key, value)
         self.session.add(todolist_item)
         self.session.commit()
         self.session.refresh(todolist_item)
         return todolist_item
     
-    def delete_todolist(self, id):
+    def delete_todolist(self, id, user_payload):
+        userid: int =  user_payload.get('id')
         todolist = self.session.get(TodoList, id)
         if not todolist:
             raise HTTPException(status_code=404, detail="Task hasn't been created")
+        if todolist.user_id != userid:
+            raise HTTPException(status_code=401, detail="Unauthorized")
         self.session.delete(todolist)
         self.session.commit()
         self.response.status_code = status.HTTP_204_NO_CONTENT

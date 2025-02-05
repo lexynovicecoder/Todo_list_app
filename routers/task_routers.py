@@ -9,6 +9,8 @@ from database.database import *
 from typing import List
 from services.todo_services import todo_service,TodoServices
 from database.database import engine
+from authorization_authentication import auth
+
 
 
 
@@ -55,38 +57,38 @@ def get_session():
 
 
 @router1.post("",response_model=Todo, status_code = 201 )
-def create_task(task: TaskCreateDTO,todo_service: TodoServices = Depends(todo_service)):
-    db_item = todo_service.create_todo(task)
+def create_task( task: TaskCreateDTO,todo_service: TodoServices = Depends(todo_service),payload: dict = Depends(auth.jwt_decode_token)):
+    db_item = todo_service.create_todo(task,payload)
     return db_item
 
 
 @router1.get("", response_model=List[Todo])
-def read_tasks(todo_service: TodoServices = Depends(todo_service)):
-    tasks = todo_service.read_todos()
+def read_tasks(todo_service: TodoServices = Depends(todo_service),payload: dict = Depends(auth.jwt_decode_token)):
+    tasks = todo_service.read_todos(payload)
     return tasks
 
 
 
 @router1.put("/{task_id}", response_model=Todo)
-def update_task(task_id: int, task: TaskUpdateDTO,todo_service: TodoServices = Depends(todo_service)):
-    task_item = todo_service.update_todo(id=task_id,task=task)
+def update_task(task_id: int, task: TaskUpdateDTO,todo_service: TodoServices = Depends(todo_service), payload: dict = Depends(auth.jwt_decode_token)):
+    task_item = todo_service.update_todo(id=task_id,task=task,user_payload=payload)
     return task_item
 
 @router1.patch("/{task_id}/complete", response_model=Todo)
-def complete_task(task_id: int, todo_service: TodoServices = Depends(todo_service)):
-    completed_task = todo_service.complete_todo(task_id)
+def complete_task(task_id: int, todo_service: TodoServices = Depends(todo_service), payload: dict = Depends(auth.jwt_decode_token)):
+    completed_task = todo_service.complete_todo(task_id,payload)
     return completed_task
     
 
 @router1.patch("/{task_id}/undo", response_model=Todo)
-def undo_task(task_id: int,todo_service: TodoServices = Depends(todo_service)):
-    undone_task = todo_service.undo_todo(task_id)
+def undo_task(task_id: int,todo_service: TodoServices = Depends(todo_service), payload: dict = Depends(auth.jwt_decode_token)):
+    undone_task = todo_service.undo_todo(task_id,payload)
     return undone_task
 
 
 
 @router1.delete("/{task_id}", status_code = 204)
-def delete_task(task_id: int,todo_service: TodoServices = Depends(todo_service)):
-    deleted_task = todo_service.delete_todo(task_id)
+def delete_task(task_id: int,todo_service: TodoServices = Depends(todo_service), payload: dict = Depends(auth.jwt_decode_token)):
+    deleted_task = todo_service.delete_todo(task_id, payload, payload)
     return deleted_task
     

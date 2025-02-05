@@ -19,6 +19,16 @@ class TaskUpdateDTO(BaseModel):
 
 class TodoListCreateDTO(BaseModel):
     name: str = Field(index=True)
+    user_id: int
+
+class TodoListUpdateDTO(BaseModel):
+    name: str = Field(index=True)
+
+class LoginDTO(BaseModel):
+    username: str = Field(index=True)
+    password: str
+
+
 
 class TodoListResponseDTO(BaseModel):
     id: int = Field(default=None, primary_key=True)

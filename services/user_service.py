@@ -1,10 +1,11 @@
+from fastapi.security import HTTPAuthorizationCredentials
 from Models.models import User
 from authorization_authentication.auth import bcrypt_context,SECRET_KEY,ALGORITHM,security_scheme
 from typing import Annotated
 from datetime import datetime, timedelta, timezone
 from fastapi import status,Depends,HTTPException
 from sqlmodel import select
-from jose import jwt, JWTError
+import jwt
 
 
 
@@ -23,11 +24,11 @@ def authenticate_user(username:str, password:str, db):
     return user
 
 
-def login_for_token(form,session):
-    user = authenticate_user(form.username, form.password, session)
+def login_for_token(dto,session):
+    user = authenticate_user(dto.username, dto.password, session)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate user")
-    token = create_access_token(user.username, user.id, timedelta(minutes=20))
+    token = create_access_token(user.username, user.id, timedelta(minutes=60))
     return {'access_token': token, 'token_type': 'bearer'}
 
 def create_access_token(username:str, user_id:int, expires_delta: timedelta):
@@ -38,15 +39,17 @@ def create_access_token(username:str, user_id:int, expires_delta: timedelta):
 
 
 
-def get_current_user(token: Annotated[str, Depends(security_scheme)]):
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security_scheme)):
+    if credentials.scheme != "Bearer":
+        raise HTTPException(status_code=401, detail="Invalid authentication scheme")
     try:
-        payload =jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM], issuer=None,
+                             leeway=0, options={"verify_aud": False, "verify_signature": True})
         username: str = payload.get('sub')
         user_id: int =  payload.get('id')
-        if username is None or user_id is None:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
         return {'username': username, 'id': user_id}
-
-    except JWTError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
-
+    except jwt.exceptions.DecodeError as error:
+        raise HTTPException(status_code=401, detail=error.__str__())
+    except jwt.exceptions.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
+    
